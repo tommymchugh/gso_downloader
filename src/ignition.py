@@ -13,11 +13,12 @@
 #  limitations under the License.
 
 import os
-import utils
+import json
 import requests
 import zipfile
 import urllib.parse
 import urllib.request
+import src.utils as utils
 import src.model_pb2 as model_pb
 from typing import Dict, List, Type
 
@@ -46,10 +47,10 @@ def collection_entry_to_model(entry: Dict[str, str]) -> Type[model_pb.Model]:
     model.owner = entry['owner']
     model.description = entry['description']
     model.created_date = entry['createdAt']
-    for category_name in entry['categories']:
+    for category_name in entry.get('categories', []):
         category = model_pb.Category()
         category.name = category_name
-        model.categories.append(category)
+        model.categories.extend([category])
     return model
 
 def download_model(url: str, name: str, location: str) -> None:

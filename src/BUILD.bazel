@@ -35,7 +35,7 @@ py_library(
         "ignition.py"
     ],
     deps = [
-        ":utils_lib",
+        ":utils_py_lib",
         ":model_pb_py_lib"
     ],
     visibility = ["//visibility:public"],
