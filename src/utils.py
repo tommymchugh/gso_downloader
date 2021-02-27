@@ -12,4 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import src.model_pb2 as model_pb
+import json
+
+strings_filename = 'strings.json'
+
+def get_strings() -> str:
+    with open(strings_filename) as strings_file:
+        strings_text = strings_file.read()
+        return json.loads(strings_text)

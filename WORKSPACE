@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 http_archive(
     name = "rules_python",
@@ -32,3 +33,17 @@ http_archive(
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 rules_proto_dependencies()
 rules_proto_toolchains()
+
+git_repository(
+    name = "build_stack_rules_proto",
+    commit = "e20cebe14d1b9059dc4e7faee159f5b7176e0050",
+    remote = "https://github.com/stackb/rules_proto.git",
+)
+load("@build_stack_rules_proto//python:deps.bzl", "python_proto_library")
+python_proto_library()
+
+load("@rules_python//python:pip.bzl", "pip_install")
+pip_install(
+    name = "protobuf_py_deps",
+    requirements = "@build_stack_rules_proto//python/requirements:protobuf.txt",
+)
