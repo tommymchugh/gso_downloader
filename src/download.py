@@ -14,6 +14,8 @@
 
 import os
 import itertools
+import tempfile
+import shutil
 import src.utils as utils
 import src.ignition as ignition
 from pathlib import Path
@@ -28,19 +30,21 @@ default_num_processes = 8
 def download_model(output_path: str,
                    collection_entry: Dict[str, str],
                    index: int) -> None:
-    os.chdir(output_path)
-    output_dirname = str(index)
-    model = ignition.collection_entry_to_model(collection_entry)
-    os.mkdir(output_dirname)
-    output_metadata_path = os.path.join(output_dirname,
-                                        strings['pb_filename'])
-    with open(output_metadata_path, 'wb') as pb_file:
-        pb_file.write(model.SerializeToString())
-    model_url = ignition.get_model_download_url(strings['author'],
-                                                model.name)
-    ignition.download_model(model_url,
-                            strings['model_dirname'],
-                            output_dirname)
+    with tempfile.TemporaryDirectory() as temp_dirpath:
+        os.chdir(temp_dirpath)
+        output_dirname = str(index)
+        model = ignition.collection_entry_to_model(collection_entry)
+        os.mkdir(output_dirname)
+        output_metadata_path = os.path.join(output_dirname,
+                                            strings['pb_filename'])
+        with open(output_metadata_path, 'wb') as pb_file:
+            pb_file.write(model.SerializeToString())
+        model_url = ignition.get_model_download_url(strings['author'],
+                                                    model.name)
+        ignition.download_model(model_url,
+                                strings['model_dirname'],
+                                output_dirname)
+        shutil.move(os.path.join(temp_dirpath, output_dirname), output_path)
 
 def download(initial_path: str = default_initial_path,
              process_count: int = default_num_processes) -> None:
