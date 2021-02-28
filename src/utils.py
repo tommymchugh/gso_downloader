@@ -35,7 +35,7 @@ def init_download_root(initial_path: str) -> None:
 
 def root_exists(initial_path: str) -> bool:
     root_path = get_download_root_path(initial_path)
-    return os.path.isdir(root_path)
+    return os.path.isdir(root_path) or os.path.isfile(root_path)
 
 def root_is_corrupt(initial_path: str) -> bool:
     root_path = get_download_root_path(initial_path)

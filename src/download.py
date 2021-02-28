@@ -16,6 +16,7 @@ import os
 import itertools
 import tempfile
 import shutil
+import fire
 import src.utils as utils
 import src.ignition as ignition
 from pathlib import Path
@@ -47,12 +48,16 @@ def download_model(output_path: str,
         shutil.move(os.path.join(temp_dirpath, output_dirname), output_path)
 
 def download(initial_path: str = default_initial_path,
-             process_count: int = default_num_processes) -> None:
+             process_count: int = default_num_processes,
+             override_root: bool = False) -> None:
     output_path = utils.get_download_root_path(initial_path)
     collection_page_count = int(strings['pages'])
     collection_entries = list()
     process_entry_pool = Pool(processes=process_count)
     download_entry_pool = Pool(processes=process_count)
+
+    if override_root and utils.root_exists(initial_path):
+        shutil.rmtree(output_path)
 
     utils.init_download_root(initial_path)
     page_range = list(range(1, collection_page_count+1))
@@ -75,4 +80,4 @@ def download(initial_path: str = default_initial_path,
 
 # Output arguments
 if __name__ == '__main__':
-    download()
+    fire.Fire(download)

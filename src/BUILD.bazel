@@ -25,7 +25,8 @@ py_binary(
     deps = [
         ":ignition_py_lib",
         ":utils_py_lib",
-        ":model_pb_py_lib"
+        ":model_pb_py_lib",
+        requirement("fire")
     ],
     visibility = ["//visibility:public"],
 )
