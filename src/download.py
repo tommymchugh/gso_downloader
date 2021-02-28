@@ -23,7 +23,7 @@ from functools import partial
 
 strings = utils.get_strings()
 default_initial_path = utils.get_default_root_initial_path()
-default_num_processes = 4
+default_num_processes = 8
 
 def download_model(output_path: str,
                    collection_entry: Dict[str, str],
