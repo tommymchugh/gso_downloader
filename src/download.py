@@ -78,6 +78,5 @@ def download(initial_path: str = default_initial_path,
     download_entry_pool.close()
     download_entry_pool.join()
 
-# Output arguments
 if __name__ == '__main__':
     fire.Fire(download)
