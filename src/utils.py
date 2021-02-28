@@ -14,6 +14,7 @@
 
 import os
 import json
+from pathlib import Path
 
 strings_filename = 'strings.json'
 
@@ -22,3 +23,23 @@ def get_strings() -> str:
     with open(strings_path) as strings_file:
         strings_text = strings_file.read()
         return json.loads(strings_text)
+
+def get_download_root_path(initial_path: str) -> str:
+    strings = get_strings()
+    return os.path.join(initial_path, strings['output_dirname'])
+
+def init_download_root(initial_path: str) -> None:
+    root_path = get_download_root_path(initial_path)
+    os.mkdir(root_path)
+    os.chdir(root_path)
+
+def root_exists(initial_path: str) -> bool:
+    root_path = get_download_root_path(initial_path)
+    return os.path.isdir(root_path)
+
+def root_is_corrupt(initial_path: str) -> bool:
+    root_path = get_download_root_path(initial_path)
+    return os.path.isfile(root_path)
+
+def get_default_root_initial_path() -> str:
+    return str(Path.home())

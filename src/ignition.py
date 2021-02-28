@@ -22,8 +22,9 @@ import src.utils as utils
 import src.model_pb2 as model_pb
 from typing import Dict, List, Type
 
+strings = utils.get_strings()
+
 def get_model_download_url(author: str, model: str) -> str:
-    strings = utils.get_strings()
     url_params_str = '{}/models/{}/1/{}.zip'.format(author,
                                                     model,
                                                     model)
@@ -31,7 +32,6 @@ def get_model_download_url(author: str, model: str) -> str:
     return '{}/{}'.format(strings['base_url'], url_params)
 
 def get_collection_page_url(author: str, collection: str, page: int) -> str:
-    strings = utils.get_strings()
     url_params_str = '{}/collections/{}/models'.format(author, collection)
     url_params = urllib.parse.quote(url_params_str)
     return '{}/{}?page={}'.format(strings['base_url'], url_params, page)
@@ -62,3 +62,9 @@ def download_model(url: str, name: str, location: str) -> None:
     with zipfile.ZipFile(zip_path) as zip_ref:
         zip_ref.extractall(output_folder_path)
     os.remove(zip_path)
+
+def get_collection_entries(page: int) -> List[Dict[str, str]]:
+    page_url = get_collection_page_url(strings['author'],
+                                                strings['collection'],
+                                                page)
+    return get_collection_page(page_url)

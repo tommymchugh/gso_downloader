@@ -21,6 +21,12 @@ http_archive(
     sha256 = "b6d46438523a3ec0f3cead544190ee13223a52f6a6765a29eae7b7cc24cc83a0",
 )
 
+load("@rules_python//python:pip.bzl", "pip_install")
+pip_install(
+   name = "pip",
+   requirements = "//:requirements.txt",
+)
+
 http_archive(
     name = "rules_proto",
     sha256 = "602e7161d9195e50246177e7c55b2f39950a9cf7366f74ed5f22fd45750cd208",
@@ -42,7 +48,6 @@ git_repository(
 load("@build_stack_rules_proto//python:deps.bzl", "python_proto_library")
 python_proto_library()
 
-load("@rules_python//python:pip.bzl", "pip_install")
 pip_install(
     name = "protobuf_py_deps",
     requirements = "@build_stack_rules_proto//python/requirements:protobuf.txt",

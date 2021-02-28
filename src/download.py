@@ -13,42 +13,62 @@
 #  limitations under the License.
 
 import os
+import itertools
 import src.utils as utils
 import src.ignition as ignition
 from pathlib import Path
+from multiprocessing import Pool
+from typing import Dict
+from functools import partial 
+
+strings = utils.get_strings()
+default_initial_path = utils.get_default_root_initial_path()
+default_num_processes = 4
+
+def download_model(output_path: str,
+                   collection_entry: Dict[str, str],
+                   index: int) -> None:
+    os.chdir(output_path)
+    output_dirname = str(index)
+    model = ignition.collection_entry_to_model(collection_entry)
+    os.mkdir(output_dirname)
+    output_metadata_path = os.path.join(output_dirname,
+                                        strings['pb_filename'])
+    with open(output_metadata_path, 'wb') as pb_file:
+        pb_file.write(model.SerializeToString())
+    model_url = ignition.get_model_download_url(strings['author'],
+                                                model.name)
+    ignition.download_model(model_url,
+                            strings['model_dirname'],
+                            output_dirname)
+
+def download(initial_path: str = default_initial_path,
+             process_count: int = default_num_processes) -> None:
+    output_path = utils.get_download_root_path(initial_path)
+    collection_page_count = int(strings['pages'])
+    collection_entries = list()
+    process_entry_pool = Pool(processes=process_count)
+    download_entry_pool = Pool(processes=process_count)
+
+    utils.init_download_root(initial_path)
+    page_range = list(range(1, collection_page_count+1))
+    page_entries = list(process_entry_pool.map(ignition.get_collection_entries,
+                                               page_range))
+    process_entry_pool.close()
+    process_entry_pool.join()
+
+    merged_entries = list()
+    entry_index = 1
+    for entries in page_entries:
+        for entry in entries:
+            merged_entries.append((entry, entry_index))
+            entry_index += 1
+
+    partial_download_model = partial(download_model, output_path)
+    download_entry_pool.starmap(partial_download_model, merged_entries)
+    download_entry_pool.close()
+    download_entry_pool.join()
 
 # Output arguments
-output_initial_path = str(Path.home())
-output_dir = 'google_scanned_objects'
-output_path = os.path.join(output_initial_path, output_dir)
-
-# Static variables
-strings = utils.get_strings()
-collection_pages = int(strings['pages'])
-
 if __name__ == '__main__':
-    # Create the output path and change into that directory
-    os.mkdir(output_path)
-    os.chdir(output_path)
-
-    # Loop through each collection and create an entry
-    count = 1
-    for page in list(range(1, collection_pages+1)):
-        page_url = ignition.get_collection_page_url(strings['author'],
-                                                    strings['collection'],
-                                                    page)
-        collection_page = ignition.get_collection_page(page_url)
-        for collection_entry in collection_page:
-            print('Downloading object #{}'.format(count))
-            model = ignition.collection_entry_to_model(collection_entry)
-            os.mkdir(model.name.lower())
-            output_metadata_path = os.path.join(model.name.lower(),
-                                                strings['pb_filename'])
-            with open(output_metadata_path, 'wb') as pb_file:
-                pb_file.write(model.SerializeToString())
-            model_url = ignition.get_model_download_url(strings['author'],
-                                                        model.name)
-            ignition.download_model(model_url,
-                                    strings['model_dirname'],
-                                    model.name.lower())
-            count += 1
+    download()

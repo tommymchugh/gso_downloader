@@ -15,6 +15,7 @@
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@build_stack_rules_proto//python:python_proto_library.bzl", "python_proto_library")
+load("@pip//:requirements.bzl", "requirement")
 
 py_binary(
     name = "download",
@@ -36,7 +37,8 @@ py_library(
     ],
     deps = [
         ":utils_py_lib",
-        ":model_pb_py_lib"
+        ":model_pb_py_lib",
+        requirement("requests")
     ],
     visibility = ["//visibility:public"],
 )
