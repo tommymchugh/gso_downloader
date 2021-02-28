@@ -32,6 +32,20 @@ py_binary(
 )
 
 py_library(
+    name = "download_py_lib",
+    srcs = [
+        "download.py"
+    ],
+    deps = [
+        ":ignition_py_lib",
+        ":utils_py_lib",
+        ":model_pb_py_lib",
+        requirement("fire")
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
     name = "ignition_py_lib",
     srcs = [
         "ignition.py"
